@@ -1,15 +1,324 @@
-GitHub
+# GUÍA COMPLETA DE COMANDOS GIT - RESUMEN PROFESIONAL
+# ===================================================
 
-Inicializar un repositorio local:
-- Crear una carpeta y abrir la terminal.
-- $ git init
+## CONCEPTOS BÁSICOS
+## -----------------
+# Repositorio Local: Carpeta en tu computadora con control de versiones
+# Repositorio Remoto: Almacenamiento en la nube (GitHub, GitLab, etc.)
 
-Crear un repositorio remoto
-- URL: https://github.com/elAve2002/aprenderGit.git 
+## Estados de Archivos en Git:
+# 1. Working Directory: Archivos modificados
+# 2. Staging Area: Archivos preparados para commit
+# 3. Repository: Commits guardados permanentemente
 
-- agregar nombre y mail para identificar repo local
-- $git config user.name "<<tu nombre>>"
-- $git config user.email "<<mail de la cuenta git>>"
 
-- agregar el repo remoto
-- git remote add origin "URL_de_repo_git"
+## CONFIGURACIÓN INICIAL
+## ---------------------
+
+# Configurar Identidad (OBLIGATORIO antes del primer commit)
+git config --global user.name "Tu Nombre"
+git config --global user.email "tu-email@dominio.com"
+
+# Configurar solo para el proyecto actual
+git config user.name "Tu Nombre"
+git config user.email "tu-email@dominio.com"
+
+# Verificar configuración
+git config --list
+git config user.name
+git config user.email
+
+
+## INICIALIZAR REPOSITORIOS
+## -------------------------
+
+# Crear repositorio local desde cero
+mkdir mi-proyecto
+cd mi-proyecto
+git init
+
+# Cambiar nombre de rama principal (recomendado)
+git branch -m main
+git config --global init.defaultBranch main
+
+# Conectar con repositorio remoto
+git remote add origin https://github.com/usuario/repositorio.git
+
+# Ver repositorios remotos configurados
+git remote -v
+
+# Cambiar URL del remoto
+git remote set-url origin https://github.com/usuario/nuevo-repositorio.git
+
+
+## CICLO DE TRABAJO BÁSICO
+## -----------------------
+
+# 1. Ver estado del repositorio
+git status
+git status -s  # Versión resumida
+
+# 2. Agregar archivos al staging
+git add archivo.txt          # Archivo específico
+git add .                    # Todos los archivos modificados
+git add --all                # Todos los archivos (incluye eliminados)
+git add *.js                 # Patrón de archivos
+
+# 3. Crear commit
+git commit -m "Mensaje descriptivo del cambio"
+git commit -am "Mensaje"     # Agrega y commitea (solo archivos trackeados)
+
+# 4. Subir al repositorio remoto
+git push -u origin main      # Primera vez (crea rama remota)
+git push                     # Subsecuentes
+
+
+## TRABAJAR CON REPOSITORIOS REMOTOS
+## ---------------------------------
+
+# Clonar repositorio existente
+git clone https://github.com/usuario/repositorio.git
+git clone https://github.com/usuario/repositorio.git nombre-carpeta
+
+# Actualizar desde remoto
+git fetch origin             # Descarga cambios sin fusionar
+git pull origin main         # Descarga y fusiona cambios
+git pull                     # Equivalente a fetch + merge
+git pull --rebase            # Mantiene historial lineal
+
+# Eliminar conexión remota
+git remote remove origin
+
+
+## RAMAS (BRANCHES)
+## ----------------
+
+# Ver ramas
+git branch                   # Ramas locales
+git branch -a                # Todas las ramas (locales y remotas)
+git branch -v                # Con último commit
+git branch --show-current    # Rama actual
+
+# Crear ramas
+git branch nombre-rama       # Crear rama
+git checkout -b nueva-rama   # Crear y cambiar a nueva rama
+git switch -c nueva-rama     # Versión moderna
+
+# Cambiar entre ramas
+git checkout nombre-rama     # Cambiar a rama existente
+git switch nombre-rama       # Versión moderna
+git checkout -               # Volver a rama anterior
+
+# Renombrar ramas
+git branch -m nuevo-nombre                    # Rama actual
+git branch -m nombre-actual nuevo-nombre      # Rama específica
+
+# Eliminar ramas
+git branch -d nombre-rama                     # Eliminar local (si fusionada)
+git branch -D nombre-rama                     # Forzar eliminación
+git push origin --delete nombre-rama          # Eliminar rama remota
+
+
+## FUSIONAR CAMBIOS (MERGE)
+## -------------------------
+
+# Fusionar rama a rama principal
+git checkout main
+git merge nombre-rama
+
+# Si hay conflictos:
+# 1. Git marca archivos con <<<<<<<, =======, >>>>>>>
+# 2. Editar archivos para resolver diferencias
+# 3. Agregar archivos resueltos y commitear
+git add archivo-resuelto.txt
+git commit -m "Resuelto conflicto en archivo.txt"
+
+
+## COMPARAR CAMBIOS
+## ----------------
+
+# Ver diferencias
+git diff                      # Cambios no stageados
+git diff --staged             # Cambios en staging
+git diff rama1..rama2         # Comparar dos ramas
+git diff rama1..rama2 -- archivo.txt  # Archivo específico
+
+# Ver historial
+git log --oneline --graph --all
+git log --stat                # Con estadísticas
+git log -p                    # Con diferencias
+
+
+## AUTENTICACIÓN CON GITHUB
+## -------------------------
+
+# IMPORTANTE: GitHub ya no acepta contraseñas, solo:
+# 1. Token de Acceso Personal
+# 2. Claves SSH
+
+# Método 1: Token de Acceso Personal
+# 1. Crear en: https://github.com/settings/tokens
+# 2. Seleccionar scope 'repo'
+# 3. Usar token como contraseña al hacer push
+
+# Método 2: SSH Keys (Más seguro)
+ssh-keygen -t ed25519 -C "tu-email@gmail.com"
+cat ~/.ssh/id_ed25519.pub
+# Agregar clave a GitHub: Settings → SSH and GPG keys
+
+# Configurar Git para usar SSH
+git remote set-url origin git@github.com:usuario/repositorio.git
+
+# Método 3: Guardar credenciales
+git config --global credential.helper store    # Guardar permanentemente
+git config --global credential.helper cache    # Cache por 15 minutos
+
+
+## DESHACER CAMBIOS
+## ----------------
+
+git checkout -- archivo.txt          # Descartar cambios en working directory
+git reset HEAD archivo.txt           # Quitar del staging (keep file)
+git reset --soft HEAD~1              # Deshacer último commit (keep changes)
+git reset --hard HEAD~1              # Deshacer último commit (discard changes)
+git revert commit-hash               # Revertir commit (crea nuevo commit)
+
+
+## ARCHIVOS IGNORADOS (.gitignore)
+## -------------------------------
+
+# Crear archivo .gitignore
+touch .gitignore
+
+# Ejemplo de contenido:
+# node_modules/
+# *.log
+# .DS_Store
+# .env
+# /dist
+# /build
+
+
+## BUENAS PRÁCTICAS
+## ----------------
+
+# Mensajes de commit:
+# - Usar imperativo: "Add feature" no "Added feature"
+# - Primera línea: Resumen (máx 50 caracteres)
+# - Línea en blanco
+# - Cuerpo: Explicación detallada (máx 72 caracteres por línea)
+
+# Flujo de trabajo recomendado:
+# 1. git pull antes de empezar
+# 2. Crear rama para nueva funcionalidad: git checkout -b feature/nombre
+# 3. Hacer commits atómicos y frecuentes
+# 4. git push regularmente
+# 5. Crear Pull Request para integrar cambios
+
+
+## COMANDOS ÚTILES ADICIONALES
+## ----------------------------
+
+# Ver cambios entre commits
+git show commit-hash
+
+# Alias útiles (agregar a ~/.gitconfig)
+git config --global alias.st status
+git config --global alias.co checkout
+git config --global alias.br branch
+git config --global alias.ci commit
+
+# Limpiar archivos no trackeados
+git clean -n    # Ver qué se eliminaría
+git clean -f    # Eliminar archivos no trackeados
+git clean -fd   # Eliminar archivos y directorios no trackeados
+
+# Stash (guardar cambios temporales)
+git stash                      # Guardar cambios
+git stash list                 # Ver stashes
+git stash pop                  # Aplicar y eliminar último stash
+git stash apply                # Aplicar sin eliminar
+git stash drop                 # Eliminar último stash
+
+
+## RESOLUCIÓN DE PROBLEMAS COMUNES
+## -------------------------------
+
+# Error: "Updates were rejected because the remote contains work..."
+git pull --rebase origin main
+git push
+
+# Error: "Authentication failed"
+# Solución: Usar token o configurar SSH
+
+# Error: "Please tell me who you are"
+git config --global user.name "Tu Nombre"
+git config --global user.email "tu-email@dominio.com"
+
+# Verificar conexión SSH
+ssh -T git@github.com
+
+
+## RECURSOS ADICIONALES
+## --------------------
+
+# Documentación Oficial Git: https://git-scm.com/doc
+# GitHub Learning Lab: https://lab.github.com
+# Git Cheat Sheet: https://training.github.com/
+# Configuración SSH: https://docs.github.com/es/authentication
+
+# Atajos de teclado útiles:
+# - TAB: Autocompletar nombres de archivos/ramas
+# - Ctrl + R: Buscar en historial de comandos
+# - ↑/↓: Navegar historial de comandos
+
+
+## RESUMEN DE FLUJO TÍPICO
+## -----------------------
+
+# 1. Configurar identidad
+git config --global user.name "Tu Nombre"
+git config --global user.email "tu-email@gmail.com"
+
+# 2. Clonar repositorio existente o crear nuevo
+git clone https://github.com/usuario/repo.git
+# O
+mkdir proyecto && cd proyecto && git init
+
+# 3. Conectar con remoto (si creaste local)
+git remote add origin https://github.com/usuario/repo.git
+
+# 4. Trabajar en nueva funcionalidad
+git checkout -b feature/nueva-funcionalidad
+
+# 5. Hacer cambios y commitear
+git add .
+git commit -m "Descripción clara de los cambios"
+
+# 6. Subir cambios
+git push -u origin feature/nueva-funcionalidad
+
+# 7. Actualizar desde main
+git checkout main
+git pull origin main
+
+# 8. Fusionar cambios
+git checkout feature/nueva-funcionalidad
+git rebase main  # o git merge main
+
+# 9. Crear Pull Request en GitHub
+# 10. Eliminar rama después de merge
+git branch -d feature/nueva-funcionalidad
+
+
+## NOTAS FINALES
+## -------------
+# - Siempre hacer pull antes de push
+# - Usar ramas para nuevas funcionalidades
+# - Commits pequeños y descriptivos
+# - Nunca hacer force push en ramas compartidas
+# - Mantener .gitignore actualizado
+# - Backup importante: Git no reemplipa backup regular
+
+# Este archivo contiene el 95% de comandos Git usados diariamente
+# Para casos especiales, consultar documentación oficial.
